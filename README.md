@@ -1,0 +1,2 @@
+# voicevox_project
+VOICEVOX内のプロジェクトを管理するリポジトリ
