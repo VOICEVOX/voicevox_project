@@ -3,8 +3,8 @@
   - [ ] リリース
 - [ ] コアアップデート
   - [ ] releaseにマージ
-  - [ ] VERSION.txtの更新
   - [ ] ビルド
+    - [ ] Github Actionsの修正
   - [ ] リリース
 - [ ] エンジンアップデート
   - [ ] releaseにマージ
