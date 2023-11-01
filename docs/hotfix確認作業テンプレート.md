@@ -18,6 +18,7 @@
   - [ ] ビルド
     - [ ] Github Actionsの修正
     - [ ] dockerもビルド
+      - [ ] dockerhubのREADMEの更新
 - [ ] ソフトウェアアップデート
   - [ ] releaseにマージ
   - [ ] アップデート情報追加
