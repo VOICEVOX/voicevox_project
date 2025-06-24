@@ -19,7 +19,7 @@
   - [ ] スナップショットテストの更新
   - [ ] ビルド
     - [ ] Github Actionsの修正
-    - [ ] dockerもビルド
+    - [ ] dockerにpush
       - [ ] dockerhubのREADMEの更新
 - [ ] ソフトウェアアップデート
   - [ ] releaseにマージ
@@ -33,7 +33,16 @@
     - [ ] ブログの更新
     - [ ] ブログのmainマージ（アプデ通知のため）
 - [ ] 後処理
-  - [ ] リソースのreleaseブランチをマージ
-  - [ ] コアのreleaseブランチをマージ
-  - [ ] エンジンのreleaseブランチをマージ
-  - [ ] ソフトウェアのreleaseブランチをマージ
+  - [ ] リソース
+    - [ ] releaseブランチをマージ
+    - [ ] releasesを更新
+  - [ ] コア
+    - [ ] releaseブランチをマージ
+    - [ ] releasesを更新
+  - [ ] エンジン
+    - [ ] releaseブランチをマージ
+    - [ ] releasesを更新
+    - [ ] Docker Hubのlatestを更新
+  - [ ] ソフトウェア
+    - [ ] releaseブランチをマージ
+    - [ ] releasesを更新
