@@ -19,7 +19,7 @@
   - [ ] スナップショットテストの更新
   - [ ] ビルド
     - [ ] Github Actionsの修正
-    - [ ] dockerもビルド
+    - [ ] dockerにpush
       - [ ] dockerhubのREADMEの更新
 - [ ] ソフトウェアアップデート
   - [ ] releaseにマージ
