@@ -1,7 +1,8 @@
 - [ ] リソースアップデート
   - [ ] releaseにマージ
   - [ ] RESOURCEの更新
-  - [ ] FAT RESOURCEの更新
+    - [ ] policy.mdの更新
+    - [ ] character_info内のmetas.jsonの更新
   - [ ] リリース
 - [ ] コアアップデート
   - [ ] releaseにマージ
