@@ -14,5 +14,5 @@
 ### 例
 
 - `windows-x64-cpu`
-- `macos-aarch64-cpu`
+- `macos-arm64-cpu`
 - `linux-x64-cuda`
