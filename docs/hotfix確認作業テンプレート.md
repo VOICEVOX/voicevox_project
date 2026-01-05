@@ -6,6 +6,7 @@
   - [ ] RESOURCEの更新
     - [ ] policy.mdの更新
     - [ ] character_info内のmetas.jsonの更新
+    - [ ] 簡易規約文面をreadme 4箇所ほどに転機
   - [ ] リリース
 - [ ] コアアップデート
   - [ ] releaseにマージ
