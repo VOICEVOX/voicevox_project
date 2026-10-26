@@ -13,7 +13,7 @@ uv run /path/to/voicevox_project/tools/get_contributors.py 0.25.0 0.26.0
 ## リリースノートの生成
 
 GitHub Releaseの本文を生成します。
-対象には`editor`・`engine`・`core`・`resource`・`vvm`を指定できます。（TODO: coreのは古いので消すか相談する）
+対象には`editor`・`engine`・`resource`・`vvm`を指定できます。
 `editor`・`engine`・`vvm`では目玉更新内容を`--summary`か`--summary-file`で指定します。
 `--output`を省略すると標準出力に表示します。
 

@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Literal
@@ -23,13 +22,12 @@ def main() -> None:
 class Options(argparse.Namespace):
     """コマンドライン引数。"""
 
-    target: Literal["editor", "engine", "core", "resource", "vvm"]
+    target: Literal["editor", "engine", "resource", "vvm"]
     version: str | None
     previous_version: str | None
     summary: list[str]
     summary_file: Path | None
     output: Path | None
-    ref: str
 
 
 def parse_args() -> Options:
@@ -38,7 +36,7 @@ def parse_args() -> Options:
 
     parser.add_argument(
         "target",
-        choices=("editor", "engine", "core", "resource", "vvm"),
+        choices=("editor", "engine", "resource", "vvm"),
         help="リリースノートを作る対象。",
     )
     parser.add_argument(
@@ -68,11 +66,6 @@ def parse_args() -> Options:
         type=Path,
         help="出力先ファイル。省略時はstdoutに出力する。",
     )
-    parser.add_argument(
-        "--ref",
-        default="main",
-        help="coreの主要変更点を取得するGit参照。既定値はmain。",
-    )
 
     return parser.parse_args(namespace=Options())
 
@@ -86,7 +79,7 @@ def read_summary_text(options: Options) -> str:
 
     if (text != "") != (options.target in {"editor", "engine", "vvm"}):
         raise ValueError(
-            "更新内容はeditor・engine・vvmでは必須で、core・resourceでは指定できません。"
+            "更新内容はeditor・engine・vvmでは必須で、resourceでは指定できません。"
         )
     return text
 
@@ -98,7 +91,6 @@ def generate_release_note(options: Options) -> str:
     repository = {
         "editor": "VOICEVOX/voicevox",
         "engine": "VOICEVOX/voicevox_engine",
-        "core": "VOICEVOX/voicevox_core",
         "resource": "VOICEVOX/voicevox_resource",
         "vvm": "VOICEVOX/voicevox_vvm",
     }[options.target]
@@ -107,9 +99,6 @@ def generate_release_note(options: Options) -> str:
         version = get_latest_version(repository)
 
     match options.target:
-        case "core":
-            assets = get_release_assets(repository, version)
-            return generate_core_release_note(version, options.ref, assets)
         case "editor":
             assets = get_release_assets(repository, version)
             header = join_markdown(
@@ -364,127 +353,6 @@ def validate_assets(names: set[str], expected_names: set[str]) -> None:
         raise ValueError(
             f"リリースアセットに過不足があります。不足: {sorted(expected_names - names)} 想定外: {sorted(names - expected_names)}"
         )
-
-
-def generate_core_release_note(version: str, ref: str, assets: dict[str, str]) -> str:
-    """VOICEVOX COREの主要変更点とアセットからリリースノートを生成する。"""
-    lines = get_core_key_changes(version, ref).splitlines()
-    references = [line for line in lines if re.match(r"\[[^\]]+\]: ", line) is not None]
-    body = "\n".join(line for line in lines if line not in references)
-
-    head, _, thanks_text = body.partition("\n## 謝辞\n")
-    title, _, change_text = head.partition("\n## 変更点\n")
-    if title.strip() != f"# {version}":
-        raise ValueError(f"VOICEVOX COREの主要変更点の見出しが不正です: {title}")
-
-    thanks_text = re.sub(r"\[(@[^\]]+|#[0-9]+)\]", r"\1", thanks_text.strip())
-    thanks_text = re.sub(r"(#[0-9]+)の", r"\1 の", thanks_text)
-
-    return join_markdown(
-        "これは VOICEVOX の音声合成コアです。詳細は [ユーザーガイド](https://github.com/VOICEVOX/voicevox_core/blob/main/docs/guide/user/usage.md) をご覧ください。",
-        "> [!NOTE]\n> 音声モデル（VVM ファイル）には利用規約が存在します。詳細は [ユーザーガイド](https://github.com/VOICEVOX/voicevox_core/blob/main/docs/guide/user/usage.md) をご覧ください。",
-        "## 変更点",
-        f"<details><summary>{version}の主要な変更点</summary>\n\n{change_text.strip()}\n</details>",
-        "## アセット一覧",
-        build_core_asset_list(version, assets),
-        "" if thanks_text == "" else f"## 謝辞\n\n{thanks_text}",
-        "\n".join(line for line in references if not line.startswith(("[@", "[#"))),
-    )
-
-
-def build_core_asset_list(version: str, assets: dict[str, str]) -> str:
-    """VOICEVOX COREのアセットを検証して一覧を生成する。"""
-    downloaders = [
-        ("Windows", "x64", "download-windows-x64.exe"),
-        ("macOS", "x64", "download-osx-x64"),
-        ("macOS", "arm64", "download-osx-arm64"),
-        ("Linux", "x64", "download-linux-x64"),
-        ("Linux", "arm64", "download-linux-arm64"),
-    ]
-
-    c_api = [
-        ("Windows", "x64", f"voicevox_core-windows-x64-{version}.zip"),
-        ("Windows", "x86", f"voicevox_core-windows-x86-{version}.zip"),
-        ("macOS", "x64", f"voicevox_core-osx-x64-{version}.zip"),
-        ("macOS", "arm64", f"voicevox_core-osx-arm64-{version}.zip"),
-        ("Linux", "x64", f"voicevox_core-linux-x64-{version}.zip"),
-        ("Linux", "arm64", f"voicevox_core-linux-arm64-{version}.zip"),
-        ("Android", "arm64", f"voicevox_core-android-arm64-{version}.zip"),
-        ("Android", "x86_64", f"voicevox_core-android-x86_64-{version}.zip"),
-        ("iOS", "-", f"voicevox_core-ios-xcframework-cpu-{version}.zip"),
-    ]
-
-    python_wheels = [
-        ("Windows", "x86_64", f"voicevox_core-{version}-cp310-abi3-win_amd64.whl"),
-        ("Windows", "x86", f"voicevox_core-{version}-cp310-abi3-win32.whl"),
-        (
-            "macOS",
-            "x86_64",
-            f"voicevox_core-{version}-cp310-abi3-macosx_10_12_x86_64.whl",
-        ),
-        ("macOS", "arm64", f"voicevox_core-{version}-cp310-abi3-macosx_11_0_arm64.whl"),
-        (
-            "Linux",
-            "x86_64",
-            f"voicevox_core-{version}-cp310-abi3-manylinux_2_34_x86_64.whl",
-        ),
-        (
-            "Linux",
-            "aarch64",
-            f"voicevox_core-{version}-cp310-abi3-manylinux_2_34_aarch64.whl",
-        ),
-    ]
-
-    validate_assets(
-        set(assets),
-        {
-            "java_packages.zip",
-            *(
-                name
-                for rows in (downloaders, c_api, python_wheels)
-                for _os, _arch, name in rows
-            ),
-        },
-    )
-
-    downloader_links = [
-        (os_name, architecture, f"[{name}]({assets[name]})")
-        for os_name, architecture, name in downloaders
-    ]
-
-    return join_markdown(
-        format_core_asset_table("ダウンローダ", downloader_links),
-        format_core_asset_table("C API", c_api),
-        format_core_asset_table("Python wheel", python_wheels),
-    )
-
-
-def format_core_asset_table(title: str, rows: list[tuple[str, str, str]]) -> str:
-    """VOICEVOX COREのアセットをMarkdown表に整形する。"""
-    return "\n".join(
-        [
-            f"<details><summary>{title}</summary>",
-            "",
-            "| OS | ｱｰｷﾃｸﾁｬ | 名前 |",
-            "| --- | --- | --- |",
-            *(f"| {' | '.join(row)} |" for row in rows),
-            "</details>",
-        ]
-    )
-
-
-def get_core_key_changes(version: str, ref: str) -> str:
-    """VOICEVOX COREの主要変更点のMarkdownをGitHubから取得する。"""
-    return run_gh(
-        "api",
-        "-X",
-        "GET",
-        "-H",
-        "Accept: application/vnd.github.raw+json",
-        f"repos/VOICEVOX/voicevox_core/contents/docs/guide/user/key-changes/{version}.md",
-        "-f",
-        f"ref={ref}",
-    )
 
 
 def join_markdown(*blocks: str) -> str:
