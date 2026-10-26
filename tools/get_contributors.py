@@ -1,4 +1,4 @@
-"""指定したコミット範囲の貢献者を取得します。"""
+"""指定したコミット範囲の貢献者を取得する。"""
 
 import argparse
 import json
@@ -9,7 +9,7 @@ from github_cli import run_gh
 
 
 def main() -> None:
-    """貢献者のGitHubユーザー名を表示します。"""
+    """貢献者のGitHubユーザー名を表示する。"""
     options = parse_args()
     for contributor in get_contributors(options.base, options.head):
         print(contributor)
@@ -23,15 +23,15 @@ class Options(argparse.Namespace):
 
 
 def parse_args() -> Options:
-    """コマンドライン引数を解析します。"""
+    """コマンドライン引数を解析する。"""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("base", help="比較元のコミット・タグ・ブランチです。")
-    parser.add_argument("head", help="比較先のコミット・タグ・ブランチです。")
+    parser.add_argument("base", help="比較元のタグ・コミットID。")
+    parser.add_argument("head", help="比較先のタグ・コミットID。")
     return parser.parse_args(namespace=Options())
 
 
 def get_contributors(base: str, head: str) -> list[str]:
-    """base..headの貢献者のGitHubユーザー名を取得します。"""
+    """base..headの貢献者のGitHubユーザー名を取得する。"""
     commits = subprocess.check_output(
         ["git", "rev-list", f"{base}..{head}"], text=True
     ).splitlines()

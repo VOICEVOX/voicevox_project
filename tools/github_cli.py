@@ -1,4 +1,4 @@
-"""GitHub CLIの呼び出しを扱います。"""
+"""GitHub CLIの呼び出しを扱う。"""
 
 import json
 import subprocess
@@ -7,7 +7,7 @@ import time
 
 
 def run_gh(*arguments: str) -> str:
-    """ghの標準出力を取得し、一時的な失敗を再試行します。"""
+    """ghの標準出力を取得し、一時的な失敗を再試行する。"""
     attempt = 0
     while True:
         try:
@@ -21,7 +21,7 @@ def run_gh(*arguments: str) -> str:
 
 
 def _is_retryable(error: subprocess.CalledProcessError) -> bool:
-    """ghの失敗を再試行できるか判定します。"""
+    """ghの失敗を再試行できるか判定する。"""
     if error.returncode in {2, 4}:
         return False
 

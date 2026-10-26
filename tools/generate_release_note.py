@@ -1,4 +1,4 @@
-"""VOICEVOX関連リポジトリのリリースノートを生成します。"""
+"""VOICEVOX関連リポジトリのリリースノートを生成する。"""
 
 import argparse
 import json
@@ -11,7 +11,7 @@ from github_cli import run_gh
 
 
 def main() -> None:
-    """リリースノートを出力します。"""
+    """リリースノートを出力する。"""
     options = parse_args()
     body = (generate_release_note(options) + "\n").encode("utf-8")
     if options.output is None:
@@ -33,21 +33,21 @@ class Options(argparse.Namespace):
 
 
 def parse_args() -> Options:
-    """コマンドライン引数を解析します。"""
+    """コマンドライン引数を解析する。"""
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "target",
         choices=("editor", "engine", "core", "resource", "vvm"),
-        help="生成対象です。",
+        help="リリースノートを作る対象。",
     )
     parser.add_argument(
         "--version",
-        help="対象のバージョンです。省略時は公開日時が最新のリリースを選びます。",
+        help="対象のバージョン。省略時は公開日時が最新のリリースになる。",
     )
     parser.add_argument(
         "--previous-version",
-        help="GitHubの自動生成リリースノートの比較元バージョンです。",
+        help="GitHubの自動生成リリースノートの比較元バージョン。",
     )
 
     summary_group = parser.add_mutually_exclusive_group()
@@ -55,30 +55,30 @@ def parse_args() -> Options:
         "--summary",
         action="append",
         default=[],
-        help="更新内容のMarkdownです。複数回指定できます。",
+        help="目玉更新内容のMarkdown。複数回指定できる。",
     )
     summary_group.add_argument(
         "--summary-file",
         type=Path,
-        help="更新内容を読むMarkdownファイルです。",
+        help="目玉更新内容のMarkdownファイル。",
     )
 
     parser.add_argument(
         "--output",
         type=Path,
-        help="出力先ファイルです。省略時は標準出力に出します。",
+        help="出力先ファイル。省略時はstdoutに出力する。",
     )
     parser.add_argument(
         "--ref",
         default="main",
-        help="coreの主要変更点を取得するGit参照です。既定値はmainです。",
+        help="coreの主要変更点を取得するGit参照。既定値はmain。",
     )
 
     return parser.parse_args(namespace=Options())
 
 
 def read_summary_text(options: Options) -> str:
-    """対象に応じて更新内容を読み込みます。"""
+    """対象に応じて更新内容を読み込む。"""
     if options.summary_file is None:
         text = "\n".join(options.summary).strip()
     else:
@@ -92,7 +92,7 @@ def read_summary_text(options: Options) -> str:
 
 
 def generate_release_note(options: Options) -> str:
-    """対象に応じたリリースノートを生成します。"""
+    """対象に応じたリリースノートを生成する。"""
     summary = read_summary_text(options)
 
     repository = {
@@ -134,7 +134,7 @@ def generate_release_note(options: Options) -> str:
 
 
 def get_latest_version(repository: str) -> str:
-    """公開日時が最新のリリースのバージョンを取得します。"""
+    """公開日時が最新のリリースのバージョンを取得する。"""
     releases = json.loads(
         run_gh(
             "release",
@@ -150,7 +150,7 @@ def get_latest_version(repository: str) -> str:
 
 
 def get_release_assets(repository: str, version: str) -> dict[str, str]:
-    """GitHub Releaseのアセット名とURLを取得します。"""
+    """GitHub Releaseのアセット名とURLを取得する。"""
     response = json.loads(
         run_gh("release", "view", "-R", repository, version, "--json", "assets")
     )
@@ -160,7 +160,7 @@ def get_release_assets(repository: str, version: str) -> dict[str, str]:
 def generate_github_release_note(
     repository: str, version: str, previous_version: str | None
 ) -> str:
-    """GitHubのリリースノートを自動生成します。"""
+    """GitHubのリリースノートを自動生成する。"""
     arguments = [
         "api",
         f"repos/{repository}/releases/generate-notes",
@@ -173,7 +173,7 @@ def generate_github_release_note(
 
 
 def build_editor_asset_list(version: str, assets: dict[str, str]) -> str:
-    """エディターのアセットを検証してリンク一覧を生成します。"""
+    """エディターのアセットを検証してリンク一覧を生成する。"""
     sections = {
         "Windows": [
             (f"VOICEVOX.Web.Setup.{version}.exe", "インストーラー版"),
@@ -290,7 +290,7 @@ def build_editor_asset_list(version: str, assets: dict[str, str]) -> str:
 
 
 def build_engine_asset_list(version: str, assets: dict[str, str]) -> str:
-    """エンジンのアセットを検証してリンク一覧を生成します。"""
+    """エンジンのアセットを検証してリンク一覧を生成する。"""
     packages = (
         ("windows-cpu", "Windows（CPU版）"),
         ("windows-directml", "Windows（GPU/DirectML版）"),
@@ -334,7 +334,7 @@ def build_engine_asset_list(version: str, assets: dict[str, str]) -> str:
 
 
 def format_package_link(assets: dict[str, str], label: str, names: list[str]) -> str:
-    """単一または分割アセットのMarkdownリンクを生成します。"""
+    """単一または分割アセットのMarkdownリンクを生成する。"""
     if len(names) == 1:
         return f"[{label}]({assets[names[0]]})"
 
@@ -347,7 +347,7 @@ def format_package_link(assets: dict[str, str], label: str, names: list[str]) ->
 def collect_asset_parts(
     assets: dict[str, str], template: str, *, first_number: int, minimum_count: int
 ) -> list[str]:
-    """分割アセットを連番が途切れるまで集め、個数を検証します。"""
+    """分割アセットを連番が途切れるまで集め、個数を検証する。"""
     names: list[str] = []
     while (name := template.format(first_number + len(names))) in assets:
         names.append(name)
@@ -359,7 +359,7 @@ def collect_asset_parts(
 
 
 def validate_assets(names: set[str], expected_names: set[str]) -> None:
-    """リリースアセットに過不足がないか確認します。"""
+    """リリースアセットに過不足がないか確認する。"""
     if names != expected_names:
         raise ValueError(
             f"リリースアセットに過不足があります。不足: {sorted(expected_names - names)} 想定外: {sorted(names - expected_names)}"
@@ -367,7 +367,7 @@ def validate_assets(names: set[str], expected_names: set[str]) -> None:
 
 
 def generate_core_release_note(version: str, ref: str, assets: dict[str, str]) -> str:
-    """VOICEVOX COREの主要変更点とアセットからリリースノートを生成します。"""
+    """VOICEVOX COREの主要変更点とアセットからリリースノートを生成する。"""
     lines = get_core_key_changes(version, ref).splitlines()
     references = [line for line in lines if re.match(r"\[[^\]]+\]: ", line) is not None]
     body = "\n".join(line for line in lines if line not in references)
@@ -393,7 +393,7 @@ def generate_core_release_note(version: str, ref: str, assets: dict[str, str]) -
 
 
 def build_core_asset_list(version: str, assets: dict[str, str]) -> str:
-    """VOICEVOX COREのアセットを検証して一覧を生成します。"""
+    """VOICEVOX COREのアセットを検証して一覧を生成する。"""
     downloaders = [
         ("Windows", "x64", "download-windows-x64.exe"),
         ("macOS", "x64", "download-osx-x64"),
@@ -460,7 +460,7 @@ def build_core_asset_list(version: str, assets: dict[str, str]) -> str:
 
 
 def format_core_asset_table(title: str, rows: list[tuple[str, str, str]]) -> str:
-    """VOICEVOX COREのアセットをMarkdown表に整形します。"""
+    """VOICEVOX COREのアセットをMarkdown表に整形する。"""
     return "\n".join(
         [
             f"<details><summary>{title}</summary>",
@@ -474,7 +474,7 @@ def format_core_asset_table(title: str, rows: list[tuple[str, str, str]]) -> str
 
 
 def get_core_key_changes(version: str, ref: str) -> str:
-    """VOICEVOX COREの主要変更点のMarkdownをGitHubから取得します。"""
+    """VOICEVOX COREの主要変更点のMarkdownをGitHubから取得する。"""
     return run_gh(
         "api",
         "-X",
@@ -488,7 +488,7 @@ def get_core_key_changes(version: str, ref: str) -> str:
 
 
 def join_markdown(*blocks: str) -> str:
-    """空でないMarkdown断片を空行で区切って結合します。"""
+    """空でないMarkdown断片を空行で区切って結合する。"""
     return "\n\n".join(block for block in blocks if block != "")
 
 
