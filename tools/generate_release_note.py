@@ -236,13 +236,11 @@ def build_editor_asset_list(version: str, assets: dict[str, str]) -> str:
         f"voicevox-linux-arm64-{version}.tar.gz",
     } - optional_names
 
-    for variant, minimum_count in (("directml", 2), ("cpu", 2), ("cuda", 3)):
+    for variant in ("directml", "cpu", "cuda"):
         prefix = f"voicevox-{variant}-{version}-x64.nsis.7z"
         required_names.add(f"{prefix}.ini")
         required_names.update(
-            collect_asset_parts(
-                assets, f"{prefix}.{{}}", first_number=0, minimum_count=minimum_count
-            )
+            collect_asset_parts(assets, f"{prefix}.{{}}", first_number=0)
         )
 
     for platform, prefix in (
@@ -255,10 +253,7 @@ def build_editor_asset_list(version: str, assets: dict[str, str]) -> str:
         required_names.add(f"{platform}-appimage.7z.txt")
         required_names.update(
             collect_asset_parts(
-                assets,
-                f"{prefix}.AppImage.7z.{{:03d}}",
-                first_number=1,
-                minimum_count=1,
+                assets, f"{prefix}.AppImage.7z.{{:03d}}", first_number=1
             )
         )
 
@@ -297,18 +292,14 @@ def build_engine_asset_list(version: str, assets: dict[str, str]) -> str:
         lines.append(f"- {title}")
         for platform, label in packages:
             prefix = f"voicevox_engine-{platform}-{version}"
-            is_cuda = platform in {"windows-nvidia", "linux-nvidia"}
 
             if kind == "7z":
                 names = collect_asset_parts(
-                    assets,
-                    f"{prefix}.7z.{{:03d}}",
-                    first_number=1,
-                    minimum_count=2 if is_cuda else 1,
+                    assets, f"{prefix}.7z.{{:03d}}", first_number=1
                 )
-            elif is_cuda:
+            elif f"{prefix}.001.vvppp" in assets:
                 names = collect_asset_parts(
-                    assets, f"{prefix}.{{:03d}}.vvppp", first_number=1, minimum_count=2
+                    assets, f"{prefix}.{{:03d}}.vvppp", first_number=1
                 )
             else:
                 names = [f"{prefix}.vvpp"]
@@ -334,15 +325,12 @@ def format_package_link(assets: dict[str, str], label: str, names: list[str]) ->
 
 
 def collect_asset_parts(
-    assets: dict[str, str], template: str, *, first_number: int, minimum_count: int
+    assets: dict[str, str], template: str, *, first_number: int
 ) -> list[str]:
-    """分割アセットを連番が途切れるまで集め、個数を検証する。"""
+    """分割アセットを連番が途切れるまで集める。"""
     names: list[str] = []
     while (name := template.format(first_number + len(names))) in assets:
         names.append(name)
-
-    if len(names) < minimum_count:
-        raise ValueError(f"分割アセット数が不足しています: {template}")
 
     return names
 
