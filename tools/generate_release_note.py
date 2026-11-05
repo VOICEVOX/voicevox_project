@@ -297,16 +297,15 @@ def build_engine_asset_list(version: str, assets: dict[str, str]) -> str:
         lines.append(f"- {title}")
         for platform, label in packages:
             prefix = f"voicevox_engine-{platform}-{version}"
-            is_cuda = platform in {"windows-nvidia", "linux-nvidia"}
 
             if kind == "7z":
                 names = collect_asset_parts(
                     assets,
                     f"{prefix}.7z.{{:03d}}",
                     first_number=1,
-                    minimum_count=2 if is_cuda else 1,
+                    minimum_count=1,
                 )
-            elif is_cuda or f"{prefix}.001.vvppp" in assets:
+            elif f"{prefix}.001.vvppp" in assets:
                 names = collect_asset_parts(
                     assets, f"{prefix}.{{:03d}}.vvppp", first_number=1, minimum_count=2
                 )
